@@ -3,7 +3,7 @@ name: Build and Deploy Docker Image
 on:
   push:
     branches:
-      - main  # Trigger action on push to main branch
+      - main  # Trigger action on push to the main branch
 
 jobs:
   build_and_deploy:
@@ -18,12 +18,12 @@ jobs:
     - name: List files in the workspace
       run: |
         echo "Listing files in the workspace:"
-        ls -l $GITHUB_WORKSPACE
+        ls -R
 
     # Step 3: Build Docker image using the correct relative path
     - name: Build Docker image
       run: |
-        echo "Building Docker image from $GITHUB_WORKSPACE/webprojects/HTMLPaint/Dockerfile"
+        echo "Building Docker image from ./webprojects/HTMLPaint/Dockerfile"
         docker buildx build -f webprojects/HTMLPaint/Dockerfile -t ${{ secrets.DOCKER_USERNAME }}/web:latest webprojects/HTMLPaint --push
 
     # Step 4: Push Docker image to Docker Hub
