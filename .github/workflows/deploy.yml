@@ -18,23 +18,23 @@ jobs:
       - name: Set up SSH key for EC2
         uses: webfactory/ssh-agent@v0.5.3
         with:
-          ssh-private-key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+          ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
 
       - name: Build Docker image
         run: |
           cd HTMLPaint
-          docker build -t yourdockerhubusername/web:latest .
+          docker build -t suganyamadhan1996/web:latest .
 
       - name: Push Docker image to DockerHub
         run: |
-          echo ${{ secrets.DOCKER_PASSWORD }} | docker login --username yourdockerhubusername --password-stdin
-          docker push yourdockerhubusername/web:latest
+          echo ${{ secrets.DOCKER_PASSWORD }} | docker login --username suganyamadhan1996--password-stdin
+          docker push suganyamadhan1996/web:latest
 
       - name: SSH to EC2 and deploy
         run: |
           ssh -o StrictHostKeyChecking=no ec2-user@15.206.89.21 << 'EOF'
-            docker pull yourdockerhubusername/web:latest
+            docker pull suganyamadhan1996/web:latest
             docker stop web || true
             docker rm web || true
-            docker run -d -p 80:80 --name web yourdockerhubusername/web:latest
+            docker run -d -p 80:80 --name web suganyamadhan1996/web:latest
           EOF
