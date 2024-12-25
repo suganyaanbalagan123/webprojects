@@ -11,7 +11,7 @@ jobs:
 
     steps:
     # Step 1: Checkout code
-    - name: Checkout repository
+    - name: Checkout repository  
       uses: actions/checkout@v2
 
     # Step 2: List files for debugging (helpful to confirm directory structure)
