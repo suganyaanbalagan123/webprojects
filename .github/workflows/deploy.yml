@@ -3,7 +3,7 @@ name: Docker Build and Deploy
 on:
   push:
     branches:
-      - main  # Trigger the workflow on a push to the main branch
+      - main
 
 jobs:
   build_and_deploy:
@@ -14,13 +14,14 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    # Step 2: Debug repository structure
+    # Step 2: Debug the directory structure
     - name: Debug repository structure
       run: |
-        echo "Current working directory:"
-        pwd
-        echo "Repository structure:"
+        echo "Working Directory: $(pwd)"
+        echo "Contents of $(pwd):"
         ls -R
+        echo "Full path for Dockerfile:"
+        find . -name Dockerfile
 
     # Step 3: Set up Docker Buildx
     - name: Set up Docker Buildx
@@ -33,25 +34,14 @@ jobs:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
 
-    # Step 5: Build and push Docker image
+    # Step 5: Build and Push Docker Image
     - name: Build and push Docker image
       run: |
+        DOCKERFILE_PATH=$(find . -name Dockerfile)
+        CONTEXT_PATH=$(dirname $DOCKERFILE_PATH)
+        echo "Dockerfile path: $DOCKERFILE_PATH"
+        echo "Context path: $CONTEXT_PATH"
         docker buildx build \
-          -f $GITHUB_WORKSPACE/webprojects/HTMLPaint/Dockerfile \
+          -f $DOCKERFILE_PATH \
           -t ${{ secrets.DOCKER_USERNAME }}/web:latest \
-          $GITHUB_WORKSPACE/webprojects/HTMLPaint --push
-
-    # Step 6: SSH to EC2 instance and deploy the Docker container
-    - name: Set up SSH key for EC2
-      uses: webfactory/ssh-agent@v0.5.3
-      with:
-        ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
-
-    - name: Deploy Docker container on EC2
-      run: |
-        ssh -o StrictHostKeyChecking=no ubuntu@15.206.89.21 <<EOF
-        docker pull ${{ secrets.DOCKER_USERNAME }}/web:latest
-        docker stop web-container || true
-        docker rm web-container || true
-        docker run -d --name web-container -p 80:80 ${{ secrets.DOCKER_USERNAME }}/web:latest
-        EOF
+          $CONTEXT_PATH --push
