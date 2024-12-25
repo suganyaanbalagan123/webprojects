@@ -15,8 +15,9 @@ jobs:
       uses: actions/checkout@v2
 
     # Step 2: List files for debugging (helpful to confirm directory structure)
-    - name: List files for debugging
+    - name: List repository files
       run: |
+        echo "Current directory: $(pwd)"
         ls -R  # Recursively list files to confirm the structure
 
     # Step 3: Set up Docker Buildx
@@ -33,6 +34,7 @@ jobs:
     # Step 5: Build Docker image using the correct relative path
     - name: Build Docker image
       run: |
+        echo "Building Docker image from ./webprojects/HTMLPaint/Dockerfile"
         docker buildx build -f ./webprojects/HTMLPaint/Dockerfile -t ${{ secrets.DOCKER_USERNAME }}/web:latest ./webprojects/HTMLPaint
 
     # Step 6: Push Docker image to Docker Hub
