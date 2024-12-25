@@ -14,37 +14,37 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    # Step 2: List files in the repository to check structure
-    - name: List files in the repository
-      run: |
-        ls -R
-
-    # Step 3: Set up Docker Buildx
+    # Step 2: Set up Docker Buildx
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
 
-    # Step 4: Login to Docker Hub using GitHub secrets
+    # Step 3: Login to Docker Hub using GitHub secrets
     - name: Login to Docker Hub
       uses: docker/login-action@v2
       with:
         username: ${{ secrets.DOCKER_USERNAME }}  # GitHub secret for Docker Hub username
         password: ${{ secrets.DOCKER_PASSWORD }}  # GitHub secret for Docker Hub password
 
-    # Step 5: Build the Docker image from the HTMLPaint folder  
+    # Step 4: Build the Docker image from the HTMLPaint folder
     - name: Build Docker image
       run: |
-        docker build -f $(pwd)/webprojects/HTMLPaint/Dockerfile -t ${{ secrets.DOCKER_USERNAME }}/web:latest $(pwd)/webprojects/HTMLPaint
+        docker build -f webprojects/HTMLPaint/Dockerfile -t ${{ secrets.DOCKER_USERNAME }}/web:latest webprojects/HTMLPaint
 
-    # Step 6: Push the Docker image to Docker Hub
+    # Step 5: Push the Docker image to Docker Hub
     - name: Push Docker image to Docker Hub
       run: |
         docker push ${{ secrets.DOCKER_USERNAME }}/web:latest
 
-    # Step 7: Set up SSH key to EC2 instance
+    # Step 6: Set up SSH key for EC2 connection
     - name: Set up SSH key
       uses: webfactory/ssh-agent@v0.5.3
       with:
         ssh-private-key: ${{ secrets.EC2_SSH_KEY }}  # GitHub secret for EC2 SSH key
+
+    # Step 7: Add EC2 Known Hosts to the system
+    - name: Add EC2 known hosts
+      run: |
+        echo "${{ secrets.EC2_KNOWN_HOSTS }}" >> ~/.ssh/known_hosts
 
     # Step 8: SSH to EC2 and Deploy Docker container
     - name: SSH to EC2 and Deploy Docker container
