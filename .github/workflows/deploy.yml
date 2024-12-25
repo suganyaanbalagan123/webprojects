@@ -14,34 +14,39 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    # Step 2: Set up Docker Buildx
+    # Step 2: List files for debugging (helpful to confirm directory structure)
+    - name: List files for debugging
+      run: |
+        ls -R  # Recursively list files to confirm the structure
+
+    # Step 3: Set up Docker Buildx
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
 
-    # Step 3: Login to Docker Hub using GitHub secrets
+    # Step 4: Login to Docker Hub using GitHub secrets
     - name: Login to Docker Hub
       uses: docker/login-action@v2
       with:
         username: ${{ secrets.DOCKER_USERNAME }}  # GitHub secret for Docker Hub username
         password: ${{ secrets.DOCKER_PASSWORD }}  # GitHub secret for Docker Hub password
 
-    # Step 4: Build the Docker image from the HTMLPaint folder  
+    # Step 5: Build Docker image using the correct path (use GITHUB_WORKSPACE to avoid relative path issues)
     - name: Build Docker image
       run: |
-        docker build -f ./webprojects/HTMLPaint/Dockerfile -t ${{ secrets.DOCKER_USERNAME }}/web:latest ./webprojects/HTMLPaint
+        docker build -f $GITHUB_WORKSPACE/webprojects/HTMLPaint/Dockerfile -t ${{ secrets.DOCKER_USERNAME }}/web:latest $GITHUB_WORKSPACE/webprojects/HTMLPaint
 
-    # Step 5: Push the Docker image to Docker Hub
+    # Step 6: Push Docker image to Docker Hub
     - name: Push Docker image to Docker Hub
       run: |
         docker push ${{ secrets.DOCKER_USERNAME }}/web:latest
 
-    # Step 6: SSH to EC2 and deploy Docker container
+    # Step 7: SSH to EC2 and deploy Docker container
     - name: Set up SSH key
       uses: webfactory/ssh-agent@v0.5.3
       with:
         ssh-private-key: ${{ secrets.EC2_SSH_KEY }}  # GitHub secret for EC2 SSH key
 
-    # Step 7: Run Docker container on EC2 instance
+    # Step 8: Run Docker container on EC2 instance
     - name: SSH to EC2 and Deploy Docker container
       run: |
-        ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_PUBLIC_IP }} "docker pull ${{ secrets.DOCKER_USERNAME }}/web:latest && docker run -d -p 80:80 ${{ secrets.DOCKER_USERNAME }}/web:latest"
+        ssh -o StrictHostKeyChecking=no ubuntu@15.206.89.21 "docker pull ${{ secrets.DOCKER_USERNAME }}/web:latest && docker run -d -p 80:80 ${{ secrets.DOCKER_USERNAME }}/web:latest"
