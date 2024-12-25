@@ -33,7 +33,7 @@ jobs:
     # Step 5: Build Docker image using the correct relative path
     - name: Build Docker image
       run: |
-        docker build -f ./webprojects/HTMLPaint/Dockerfile -t ${{ secrets.DOCKER_USERNAME }}/web:latest ./webprojects/HTMLPaint
+        docker buildx build -f $GITHUB_WORKSPACE/webprojects/HTMLPaint/Dockerfile -t ${{ secrets.DOCKER_USERNAME }}/web:latest $GITHUB_WORKSPACE/webprojects/HTMLPaint
 
     # Step 6: Push Docker image to Docker Hub
     - name: Push Docker image to Docker Hub
