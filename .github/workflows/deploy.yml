@@ -35,11 +35,13 @@ jobs:
       run: |
         docker push ${{ secrets.DOCKER_USERNAME }}/web:latest
 
-    # Step 6: Deploy to EC2
-    - name: SSH to EC2 and Deploy Docker container
+    # Step 6: SSH to EC2 and deploy Docker container
+    - name: Set up SSH key
       uses: webfactory/ssh-agent@v0.5.3
       with:
         ssh-private-key: ${{ secrets.EC2_SSH_KEY }}  # GitHub secret for EC2 SSH key
-        ssh-known-hosts: ${{ secrets.EC2_KNOWN_HOSTS }}  # GitHub secret for EC2 known hosts
+
+    # Step 7: Run Docker container on EC2 instance
+    - name: SSH to EC2 and Deploy Docker container
       run: |
         ssh -o StrictHostKeyChecking=no ubuntu@15.206.89.21 "docker pull ${{ secrets.DOCKER_USERNAME }}/web:latest && docker run -d -p 80:80 ${{ secrets.DOCKER_USERNAME }}/web:latest"
