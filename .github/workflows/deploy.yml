@@ -24,7 +24,7 @@ jobs:
     - name: Build Docker image
       run: |
         echo "Building Docker image from $GITHUB_WORKSPACE/webprojects/HTMLPaint/Dockerfile"
-        docker buildx build -f $GITHUB_WORKSPACE/webprojects/HTMLPaint/Dockerfile -t ${{ secrets.DOCKER_USERNAME }}/web:latest $GITHUB_WORKSPACE/webprojects/HTMLPaint --push
+        docker buildx build -f webprojects/HTMLPaint/Dockerfile -t ${{ secrets.DOCKER_USERNAME }}/web:latest webprojects/HTMLPaint --push
 
     # Step 4: Push Docker image to Docker Hub
     - name: Push Docker image
