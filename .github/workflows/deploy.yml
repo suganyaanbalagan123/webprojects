@@ -14,7 +14,7 @@ jobs:
     - name: Checkout repository  
       uses: actions/checkout@v2
 
-    # Step 2: List files for debugging (helpful to confirm directory structure)
+    # Step 2: List repository files for debugging (helpful to confirm directory structure)
     - name: List repository files
       run: |
         echo "Current directory: $(pwd)"
@@ -31,16 +31,16 @@ jobs:
         username: ${{ secrets.DOCKER_USERNAME }}  # GitHub secret for Docker Hub username
         password: ${{ secrets.DOCKER_PASSWORD }}  # GitHub secret for Docker Hub password
 
-    # Step 5: Build Docker image using the correct relative path
+    # Step 5: Build Docker image using the correct path
     - name: Build Docker image
       run: |
         echo "Building Docker image from ./webprojects/HTMLPaint/Dockerfile"
-        docker buildx build -f ./webprojects/HTMLPaint/Dockerfile -t ${{ secrets.DOCKER_USERNAME }}/web:latest ./webprojects/HTMLPaint
+        docker buildx build -f ./webprojects/HTMLPaint/Dockerfile -t ${{ secrets.DOCKER_USERNAME }}/web:latest ./webprojects/HTMLPaint --push
 
     # Step 6: Push Docker image to Docker Hub
     - name: Push Docker image to Docker Hub
       run: |
-        docker push ${{ secrets.DOCKER_USERNAME }}/web:latest
+        echo "Image pushed successfully!"
 
     # Step 7: SSH to EC2 and deploy Docker container
     - name: Set up SSH key
