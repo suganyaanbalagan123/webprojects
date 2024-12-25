@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    # Step 1: Checkout repository
+    # Step 1: Checkout code
     - name: Checkout repository
       uses: actions/checkout@v2
 
@@ -25,28 +25,23 @@ jobs:
         username: ${{ secrets.DOCKER_USERNAME }}  # GitHub secret for Docker Hub username
         password: ${{ secrets.DOCKER_PASSWORD }}  # GitHub secret for Docker Hub password
 
-    # Step 4: Build the Docker image from the HTMLPaint folder
+    # Step 4: Build the Docker image from the HTMLPaint folder  
     - name: Build Docker image
       run: |
-        docker build -f webprojects/HTMLPaint/Dockerfile -t ${{ secrets.DOCKER_USERNAME }}/web:latest webprojects/HTMLPaint
+        docker build -f ./webprojects/HTMLPaint/Dockerfile -t ${{ secrets.DOCKER_USERNAME }}/web:latest ./webprojects/HTMLPaint
 
     # Step 5: Push the Docker image to Docker Hub
     - name: Push Docker image to Docker Hub
       run: |
         docker push ${{ secrets.DOCKER_USERNAME }}/web:latest
 
-    # Step 6: Set up SSH key for EC2 connection
+    # Step 6: SSH to EC2 and deploy Docker container
     - name: Set up SSH key
       uses: webfactory/ssh-agent@v0.5.3
       with:
         ssh-private-key: ${{ secrets.EC2_SSH_KEY }}  # GitHub secret for EC2 SSH key
 
-    # Step 7: Add EC2 Known Hosts to the system
-    - name: Add EC2 known hosts
-      run: |
-        echo "${{ secrets.EC2_KNOWN_HOSTS }}" >> ~/.ssh/known_hosts
-
-    # Step 8: SSH to EC2 and Deploy Docker container
+    # Step 7: Run Docker container on EC2 instance
     - name: SSH to EC2 and Deploy Docker container
       run: |
-        ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_IP_ADDRESS }} "docker pull ${{ secrets.DOCKER_USERNAME }}/web:latest && docker run -d -p 80:80 ${{ secrets.DOCKER_USERNAME }}/web:latest"
+        ssh -o StrictHostKeyChecking=no ubuntu@${{ secrets.EC2_PUBLIC_IP }} "docker pull ${{ secrets.DOCKER_USERNAME }}/web:latest && docker run -d -p 80:80 ${{ secrets.DOCKER_USERNAME }}/web:latest"
